@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MysteryTalk Ultimate</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+<style>
+html, body{
+  margin:0; padding:0; width:100%; height:100%; overflow:hidden;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  cursor:none; transition: all 0.5s;
+}
+/* === Плавающий градиент === */
+body::before{
+  content:'';
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  background:linear-gradient(270deg, #0f1e40, #3b0f55, #0f1e40);
+  background-size: 600% 600%;
+  animation: gradientWave 20s ease infinite;
+  z-index:-3;
+}
+@keyframes gradientWave{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+/* === Header === */
+header{
+  position:relative; z-index:2; display:flex; justify-content:space-between;
+  align-items:center; padding:16px;
+  background:linear-gradient(90deg,#000,#0f1e40);
+  box-shadow:0 4px 8px rgba(0,0,0,0.5);
+}
+#logo{
+  font-family:'Poppins', sans-serif;
+  font-size:24px; font-weight:600; color:#e6eefc;
+  text-shadow:0 2px 8px rgba(0,0,0,0.4);
+  letter-spacing:1px; cursor:pointer; transition: all 0.5s;
+}
+.language-select{
+  position:absolute;
+  right:16px;
+  top:16px;
+  z-index:3;
+}
+.container{
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; padding:20px;
+  position:relative; z-index:2;
+}
+.selects{ display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+select{
+  padding:12px 16px; border-radius:12px; border:none;
+  outline:none; background:rgba(255,255,255,0.1); color:#fff;
+  cursor:pointer; transition: all 0.3s; min-width:140px;
+}
+select:hover{ background:rgba(255,255,255,0.2); }
+button.main{
+  padding:14px 28px; border:none; border-radius:16px;
+  background:rgba(255,255,255,0.15); color:#fff; font-weight:bold;
+  cursor:pointer; font-size:16px; backdrop-filter: blur(8px);
+  transition: all 0.3s;
+}
+button.main:hover{ transform:scale(1.05); box-shadow:0 0 20px rgba(255,255,255,0.5);}
+.chat-box{
+  width:100%; max-width:480px; height:400px;
+  background:rgba(255,255,255,0.05); border-radius:20px;
+  padding:16px; overflow:auto; margin-top:20px; position:relative;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+.message{
+  padding:12px 16px; margin:8px 0; border-radius:18px;
+  max-width:75%; word-wrap:break-word; opacity:0;
+  transform:translateY(20px); animation:fadeIn 0.4s forwards;
+  display:flex; align-items:center;
+}
+.message.user{ background:rgba(255,255,255,0.1); margin-left:auto; justify-content:flex-end; }
+.message.other{ background:rgba(255,255,255,0.15); margin-right:auto; justify-content:flex-start; }
+.avatar{
+  width:28px; height:28px; border-radius:50%; margin-right:10px;
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+  font-weight:bold; box-shadow:0 2px 6px rgba(0,0,0,0.5); color:#fff;
+}
+.typing{ font-style:italic; opacity:0.7; margin:10px 0; padding:0 16px; color:#aaa; }
+@keyframes fadeIn{ to{opacity:1; transform:translateY(0);} }
+.composer{ display:flex; width:100%; max-width:480px; margin-top:10px; gap:8px; }
+input[type="text"]{
+  padding:12px; border-radius:16px; border:none; outline:none; flex:1;
+  transition: all 0.5s; background:rgba(255,255,255,0.05); color:#fff;
+  margin-top:5px;
+}
+input[type="text"]::placeholder{ color:rgba(255,255,255,0.5); }
+/* === Частички и курсор === */
+.particle{
+  position:absolute; width:6px; height:6px; border-radius:50%;
+  background:rgba(255,255,255,0.6); pointer-events:none;
+  animation:particleMove linear infinite;
+}
+@keyframes particleMove{0%{transform:translate(0,0);}100%{transform:translate(calc(-50vw + 50%), -100vh);}}
+.cursor-trail{
+  position:absolute; width:10px; height:10px; border-radius:50%;
+  background:rgba(255,255,255,0.4); pointer-events:none; mix-blend-mode:screen;
+}
+/* === Анимация печатания === */
+.message.animate span{
+  display:inline-block; overflow:hidden; white-space:nowrap;
+  border-right:2px solid #fff; width:0;
+  animation:typeWriter 0.5s steps(20) forwards;
+}
+@keyframes typeWriter{ from{width:0;} to{width:100%;} }
+</style>
+</head>
+<body class="dark-mode">
+<header>
+  <span id="logo">MysteryTalk</span>
+  <div class="language-select">
+    <select id="langSelect">
+      <option value="ru">RU</option>
+      <option value="en">EN</option>
+    </select>
+  </div>
+</header>
+
+<div class="container">
+  <div class="selects">
+    <select id="gender"><option value="">Пол</option><option value="male">Мужской</option><option value="female">Женский</option></select>
+    <select id="age"><option value="">Возраст</option><option value="13-17">13-17</option><option value="18-25">18-25</option><option value="26-35">26-35</option></select>
+    <select id="country">
+      <option value="">Страна</option>
+      <option value="us">🇺🇸 США</option>
+      <option value="gb">🇬🇧 Великобритания</option>
+      <option value="fr">🇫🇷 Франция</option>
+      <option value="de">🇩🇪 Германия</option>
+      <option value="jp">🇯🇵 Япония</option>
+      <option value="ru">🇷🇺 Россия</option>
+      <option value="cn">🇨🇳 Китай</option>
+      <option value="in">🇮🇳 Индия</option>
+      <option value="uz">🇺🇿 Узбекистан</option>
+      <option value="kz">🇰🇿 Казахстан</option>
+      <option value="kg">🇰🇬 Кыргызстан</option>
+      <option value="tj">🇹🇯 Таджикистан</option>
+      <option value="tm">🇹🇲 Туркменистан</option>
+      <option value="ua">🇺🇦 Украина</option>
+      <option value="by">🇧🇾 Беларусь</option>
+      <option value="tr">🇹🇷 Турция</option>
+      <option value="it">🇮🇹 Италия</option>
+      <option value="es">🇪🇸 Испания</option>
+      <option value="ca">🇨🇦 Канада</option>
+    </select>
+  </div>
+  <button id="startBtn" class="main">Начать чат</button>
+  <div class="chat-box" id="chatBox"></div>
+  <div class="composer">
+    <input type="text" id="textInput" placeholder="Введите сообщение…">
+    <button id="sendBtn" class="main">Отправить</button>
+  </div>
+</div>
+
+<script>
+const chatBox=document.getElementById('chatBox');
+const textInput=document.getElementById('textInput');
+const sendBtn=document.getElementById('sendBtn');
+const startBtn=document.getElementById('startBtn');
+const langSelect=document.getElementById('langSelect');
+const body=document.body;
+
+const sampleMessagesRU=["Привет! Как дела?","Что сегодня делаешь?","Любишь игры?","Смотрел недавно фильм","У меня классный день","Чем увлекаешься?"];
+const sampleMessagesEN=["Hi! How are you?","What are you doing today?","Do you like games?","Watched a movie recently","I have a great day","What are your hobbies?"];
+
+const countriesRU={ us:"🇺🇸 США", gb:"🇬🇧 Великобритания", fr:"🇫🇷 Франция", de:"🇩🇪 Германия", jp:"🇯🇵 Япония", ru:"🇷🇺 Россия", cn:"🇨🇳 Китай", in:"🇮🇳 Индия", uz:"🇺🇿 Узбекистан", kz:"🇰🇿 Казахстан", kg:"🇰🇬 Кыргызстан", tj:"🇹🇯 Таджикистан", tm:"🇹🇲 Туркменистан", ua:"🇺🇦 Украина", by:"🇧🇾 Беларусь", tr:"🇹🇷 Турция", it:"🇮🇹 Италия", es:"🇪🇸 Испания", ca:"🇨🇦 Канада"};
+const countriesEN={ us:"🇺🇸 USA", gb:"🇬🇧 UK", fr:"🇫🇷 France", de:"🇩🇪 Germany", jp:"🇯🇵 Japan", ru:"🇷🇺 Russia", cn:"🇨🇳 China", in:"🇮🇳 India", uz:"🇺🇿 Uzbekistan", kz:"🇰🇿 Kazakhstan", kg:"🇰🇬 Kyrgyzstan", tj:"🇹🇯 Tajikistan", tm:"🇹🇲 Turkmenistan", ua:"🇺🇦 Ukraine", by:"🇧🇾 Belarus", tr:"🇹🇷 Turkey", it:"🇮🇹 Italy", es:"🇪🇸 Spain", ca:"🇨🇦 Canada"};
+
+function addMessage(text,type='user',avatar=null){
+  const div=document.createElement('div');
+  div.className='message '+type+' animate';
+  if(type==='other' && avatar){
+    const a=document.createElement('div'); a.className='avatar'; a.textContent=avatar; div.appendChild(a);
+  }
+  const span=document.createElement('span'); span.textContent=text; div.appendChild(span);
+  chatBox.appendChild(div); chatBox.scrollTop=chatBox.scrollHeight;
+}
+
+function getRandomUser(gender,age,country){
+  const lang=langSelect.value;
+  const namesMale=lang==='ru' ? ["Алекс","Игорь","Макс","Данила","Никита"] : ["Alex","Igor","Max","Danila","Nikita"];
+  const namesFemale=lang==='ru'? ["Лена","Маша","Света","Катя","Аня"] : ["Lena","Masha","Sveta","Katya","Anya"];
+  const name=gender==="male"? namesMale[Math.floor(Math.random()*namesMale.length)]:
+  namesFemale[Math.floor(Math.random()*namesFemale.length)];
+  const c=lang==='ru'? countriesRU : countriesEN;
+  const userCountry=country? c[country] : Object.values(c)[Math.floor(Math.random()*Object.values(c).length)];
+  return {name, gender, age, avatar:userCountry};
+}
+
+function showTyping(user=null){
+  const typing=document.createElement('div'); typing.className='typing';
+  typing.textContent=langSelect.value==='ru'?'Собеседник печатает…':'User is typing…';
+  chatBox.appendChild(typing); chatBox.scrollTop=chatBox.scrollHeight;
+  setTimeout(()=>{
+    chatBox.removeChild(typing);
+    const msg=(langSelect.value==='ru'?sampleMessagesRU:sampleMessagesEN)[Math.floor(Math.random()*6)];
+    addMessage(msg,'other', user? user.avatar : null);
+  },1200);
+}
+
+startBtn.onclick=()=>{
+  const gender=document.getElementById('gender').value;
+  const age=document.getElementById('age').value;
+  const country=document.getElementById('country').value;
+  if(!gender || !age){ 
+    alert(langSelect.value==='ru'?'Выберите пол и возраст':'Select gender and age'); 
+    return; 
+  }
+  chatBox.innerHTML='';
+  addMessage(langSelect.value==='ru'?'Идёт поиск собеседника...':'Searching user...','other');
+  setTimeout(()=>{
+    chatBox.innerHTML='';
+    const user=getRandomUser(gender,age,country);
+    addMessage(langSelect.value==='ru'?'Собеседник найден.':'User found.','other',user.avatar);
+    showTyping(user);
+  },1500);
+}
+
+sendBtn.onclick=()=>{
+  const txt=textInput.value.trim();
+  if(!txt) return;
+  const msgDiv=document.createElement('div');
+  msgDiv.className='message user animate';
+  const span=document.createElement('span'); 
+  span.textContent=txt; 
+  msgDiv.appendChild(span);
+  chatBox.appendChild(msgDiv);
+  chatBox.scrollTop=chatBox.scrollHeight;
+  playSendSound();
+  setTimeout(()=>{ showTyping(); },800);
+  textInput.value='';
+}
+
+langSelect.onchange=()=>{
+  const lang=langSelect.value;
+  document.getElementById('startBtn').textContent=lang==='ru'?'Начать чат':'Start Chat';
+  textInput.placeholder=lang==='ru'?'Введите сообщение…':'Type your message…';
+  sendBtn.textContent=lang==='ru'?'Отправить':'Send';
+  document.getElementById('gender').options[0].text=lang==='ru'?'Пол':'Gender';
+  document.getElementById('age').options[0].text=lang==='ru'?'Возраст':'Age';
+  document.getElementById('country').options[0].text=lang==='ru'?'Страна':'Country';
+}
+
+// Частицы
+for(let i=0;i<30;i++){
+  const p=document.createElement('div'); p.className='particle';
+  p.style.left=Math.random()*window.innerWidth+'px';
+  p.style.top=Math.random()*window.innerHeight+'px';
+  p.style.animationDuration=(5+Math.random()*10)+'s';
+  document.body.appendChild(p);
+}
+
+// Курсор
+let trail=[];
+document.addEventListener('mousemove',(e)=>{
+  const t=document.createElement('div'); t.className='cursor-trail';
+  t.style.left=e.clientX+'px'; t.style.top=e.clientY+'px';
+  document.body.appendChild(t);
+  trail.push(t);
+  if(trail.length>10){ const old=trail.shift(); old.remove(); }
+});
+
+// Звук отправки
+const sendSound=document.createElement('audio');
+sendSound.src='https://freesound.org/data/previews/256/256113_3263906-lq.mp3';
+sendSound.volume=0.3;
+function playSendSound(){ sendSound.currentTime=0; sendSound.play(); }
+</script>
+</body>
+  </html>
